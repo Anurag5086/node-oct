@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 500px;
+      height: 90vh;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .chat-header {
+      padding: 24px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      letter-spacing: 1px;
+    }
+
+    #messages {
+      flex: 1;
+      list-style: none;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    #messages li {
+      padding: 14px 18px;
+      border-radius: 18px;
+      max-width: 80%;
+      word-wrap: break-word;
+      color: white;
+      font-size: 15px;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease;
+    }
+
+    #messages li:nth-child(odd) {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    #messages li:nth-child(even) {
+      align-self: flex-end;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    #form {
+      display: flex;
+      gap: 12px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #input {
+      flex: 1;
+      padding: 16px 18px;
+      border: none;
+      outline: none;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 15px;
+      transition: 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    #input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    #input:focus {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+    }
+
+    button {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(37, 99, 235, 0.45);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    #messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .chat-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+
+    <div class="chat-header">
+      🚀 Real-Time Chat
+    </div>
+
+    <ul id="messages"></ul>
+
+    <form id="form">
+      <input
+        id="input"
+        type="text"
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button>Send</button>
+    </form>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io()
+
+    const username = prompt("Enter your username to join the chat:")
+    socket.emit('join', username)
+
+    const messages = document.getElementById('messages')
+    const form = document.getElementById("form")
+    const input = document.getElementById('input')
+
+    socket.on('user_joined', (message) => {
+        const item = document.createElement('li')
+        item.textContent = `✨ ${message}`
+        messages.appendChild(item)
+        messages.scrollTop = messages.scrollHeight
+    })
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+
+        if(input.value){
+            socket.emit('send_message', input.value)
+            input.value = ''
+        }
+    })
+
+    socket.on('new_message', (message) => {
+        const item = document.createElement('li')
+        item.textContent = `${message.username}: ${message.message}`
+        messages.appendChild(item)
+        messages.scrollTop = messages.scrollHeight
+    })
+
+    socket.on('user_left', (message) => {
+        const item = document.createElement('li')
+        item.textContent = `❌ ${message}`
+        messages.appendChild(item)
+        messages.scrollTop = messages.scrollHeight
+    })
+  </script>
+
+</body>
+</html>
