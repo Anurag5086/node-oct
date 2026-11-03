@@ -85,7 +85,31 @@ exports.getAllProductsForCategoryForAdmin = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
     try{
+        const { title, description, mrpPrice, sellingPrice, images, categoryId, stockQty, rating, noOfReviews, brand } = req.body
 
+        const schema = joi.object({
+            title: joi.string().min(3).max(100).trim().required(),
+            description: joi.string().min(3).max(500).trim().required(),
+            mrpPrice: joi.number().min(0).required(),
+            sellingPrice: joi.number().min(0).required(),
+            images: joi.array().required(),
+            categoryId: joi.string().required(),
+            stockQty: joi.number().min(0).required(),
+            rating: joi.number().min(0).max(5).optional(),
+            noOfReviews: joi.number().min(0).optional(),
+            brand: joi.string().trim().required
+        })
+
+        const { error } = schema.validate({ title, description, mrpPrice, sellingPrice, images, categoryId, stockQty, rating, noOfReviews, brand })
+        if(error){
+            return res.status(400).json({ success: false, message: 'Invalid Input!', error })
+        }
+
+        const newProduct = new Product({ title, description, mrpPrice, sellingPrice, images, categoryId, stockQty, rating, noOfReviews, brand })
+
+        await newProduct.save()
+
+        return res.status(201).json({ success: true, message: "Successfully created product!", product: newProduct })
     }catch(err){
         return res.status(500).json({ success: false, message: 'Internal Server Error!' })
     }
@@ -93,7 +117,37 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
     try{
+        const id = req.params.id
 
+        const { title, description, mrpPrice, sellingPrice, images, categoryId, stockQty, rating, noOfReviews, brand, isActive } = req.body
+
+        const schema = joi.object({
+            title: joi.string().min(3).max(100).trim().required(),
+            description: joi.string().min(3).max(500).trim().required(),
+            mrpPrice: joi.number().min(0).required(),
+            sellingPrice: joi.number().min(0).required(),
+            images: joi.array().required(),
+            categoryId: joi.string().required(),
+            stockQty: joi.number().min(0).required(),
+            rating: joi.number().min(0).max(5).optional(),
+            noOfReviews: joi.number().min(0).optional(),
+            brand: joi.string().trim().required,
+            isActive: joi.boolean().optional()
+        })
+
+        const { error } = schema.validate({ title, description, mrpPrice, sellingPrice, images, categoryId, stockQty, rating, noOfReviews, brand, isActive })
+        if(error){
+            return res.status(400).json({ success: false, message: 'Invalid Input!', error })
+        }
+
+        const product = await Product.findById(id)
+        if(!product){
+            return res.status(404).json({ success: false, message: "Product not found!" })
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true })
+
+        return res.status(200).json({ success: true, message: "Successfully updated product!", product: updatedProduct })
     }catch(err){
         return res.status(500).json({ success: false, message: 'Internal Server Error!' })
     }
