@@ -9,6 +9,8 @@ const userRoutes = require('./routes/userRoutes')
 const categoryRoutes = require('./routes/categoryRoutes')
 const productRoutes = require('./routes/productRoutes')
 const orderRoutes = require('./routes/orderRoutes')
+const paymentRoutes = require('./routes/paymentRoutes')
+const assistantRoutes = require('./routes/assistantRoutes')
 
 const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173'
 
@@ -20,6 +22,8 @@ app.use('/api/user', userRoutes)
 app.use('/api/category', categoryRoutes)
 app.use('/api/product', productRoutes)
 app.use('/api/order', orderRoutes)
+app.use('/api/payment', paymentRoutes)
+app.use('/api/assistant', assistantRoutes)
 
 mongoose.connect(process.env.MONGODB_URI)
         .then(() => console.log('MongoDB Connected!'))

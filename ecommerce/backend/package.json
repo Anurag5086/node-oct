@@ -7,7 +7,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index"
+    "test": "nodemon index",
+    "seed:catalog": "node scripts/seedCatalog.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -17,7 +18,8 @@
     "express": "^5.3.0",
     "joi": "^18.3.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.11.4"
+    "mongoose": "^9.11.4",
+    "razorpay": "^2.9.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
