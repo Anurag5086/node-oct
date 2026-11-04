@@ -52,7 +52,7 @@ exports.getAllProductsForCategory = async (req, res) => {
 
 exports.getAllProductsForAdmin = async (req, res) => {
     try{
-        const products = await Category.find()
+        const products = await Product.find().populate('categoryId', 'title description')
         if(products.length < 1){
             return res.status(404).json({ success: false, message: "Products not found!" })
         }
@@ -97,7 +97,7 @@ exports.createProduct = async (req, res) => {
             stockQty: joi.number().min(0).required(),
             rating: joi.number().min(0).max(5).optional(),
             noOfReviews: joi.number().min(0).optional(),
-            brand: joi.string().trim().required
+            brand: joi.string().trim().required()
         })
 
         const { error } = schema.validate({ title, description, mrpPrice, sellingPrice, images, categoryId, stockQty, rating, noOfReviews, brand })
@@ -131,7 +131,7 @@ exports.updateProduct = async (req, res) => {
             stockQty: joi.number().min(0).required(),
             rating: joi.number().min(0).max(5).optional(),
             noOfReviews: joi.number().min(0).optional(),
-            brand: joi.string().trim().required,
+            brand: joi.string().trim().required(),
             isActive: joi.boolean().optional()
         })
 

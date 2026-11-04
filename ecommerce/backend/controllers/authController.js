@@ -63,9 +63,11 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Incorrect Password!' })
         }
 
+        const role = user.roles || user.role
+
         const token = jwt.sign({
             userId: user._id,
-            role: user.role,
+            role,
             email: user.email
         }, process.env.JWT_SECRET, { expiresIn: '1d' })
 
@@ -82,7 +84,7 @@ exports.loginUser = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role
             }
         })
     }catch(err){
